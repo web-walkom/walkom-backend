@@ -1,0 +1,14 @@
+[Unit]
+Description=walkom api
+
+[Service]
+Environment=GIN_MODE=release
+User=vanya
+Type=simple
+WorkingDirectory=/home/vanya/walkom/backend
+ExecStart=/home/vanya/walkom/backend/main
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

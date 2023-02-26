@@ -1,0 +1,9 @@
+http:
+  port: 8080
+  maxHeaderBytes: 1 << 20
+  readTimeout: 10s
+  writeTimeout: 10s
+
+mongo:
+  username: b0shka
+  databaseName: Walkom
