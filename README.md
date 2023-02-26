@@ -40,6 +40,7 @@ make
 
 ---
 ## Additionally
+The following files are located in the `configuration` folder:
 - The `api-walkom.service` file contains a setting for running backend on the server
 - The `api-walkom.conf` file contains a setting for running backend using nginx on a subdomain `api.walkom.ru`
 - The `walkom.service` file contains a setting for running frontend on the server
