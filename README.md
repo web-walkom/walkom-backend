@@ -13,9 +13,8 @@ The server part of the service "Walking in AR"
 
 #### Installing
 ```
-git clone https://github.com/Danblack15/WebAR.git
-cd WebAR
-git checkout back
+git clone https://github.com/web-walkom/walkom-backend.git
+cd walkom-backend/
 ```
 
 #### Configure
@@ -35,7 +34,7 @@ The port on which the service will be launched is specified in the file `configs
 
 To start, run
 ```
-go build cmd/app/main.go
+make
 ./main
 ```
 
