@@ -1,6 +1,6 @@
-# WebAR-backend
+# walkom-backend
 
-The server part of the service "Walking in AR"
+The server part of the service walkom.ru
 
 ![GO][go-version]
 
