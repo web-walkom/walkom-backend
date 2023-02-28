@@ -26,6 +26,11 @@ SECRET_KEY - key for generating authentication tokens
 FRONTEND_URL - the link from which the request will come from the frontend
 ```
 
+To install all the dependencies, run
+```
+go mod download
+```
+
 Also, in the `configs/config.yml` file, specify your mongodb login and the name of the database
 
 ---
@@ -40,7 +45,7 @@ make
 
 ---
 ## Additionally
-The following files are located in the `configuration` folder:
+The following files are located in the `deploy` folder:
 - The `api-walkom.service` file contains a setting for running backend on the server
 - The `api-walkom.conf` file contains a setting for running backend using nginx on a subdomain `api.walkom.ru`
 - The `walkom.service` file contains a setting for running frontend on the server

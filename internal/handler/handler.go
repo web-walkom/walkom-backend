@@ -29,8 +29,8 @@ func NewHandler(
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {
-	// gin.SetMode(gin.ReleaseMode)
-	gin.SetMode(gin.DebugMode)
+	//gin.SetMode(gin.ReleaseMode)
+	//gin.SetMode(gin.DebugMode)
 
 	router := gin.Default()
 

@@ -37,7 +37,7 @@ func (s *Server) Run() error {
 		logger.Info("Success loading env variables")
 	}
 
-	mongoClient, err := repository.NewMongoDB(os.Getenv("MONDO_DB_URL"))
+	mongoClient, err := repository.NewMongoDB(os.Getenv("MONGO_URI"))
 	if err != nil {
 		logger.Fatalf("Error connect mongodb: %s", err.Error())
 	} else {

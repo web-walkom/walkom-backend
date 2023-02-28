@@ -1,0 +1,13 @@
+[Unit]
+Description=Walkom frontend
+
+[Service]
+User=vanya
+Type=simple
+WorkingDirectory=/home/vanya/walkom/frontend
+ExecStart=yarn start
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
