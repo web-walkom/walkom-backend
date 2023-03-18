@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"walkom/pkg/logging"
+	"github.com/b0shka/walkom-backend/pkg/logging"
 
 	"github.com/gin-gonic/gin"
 )

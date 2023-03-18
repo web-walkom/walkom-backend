@@ -1,26 +1,23 @@
-name: CI
+name: Stage
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - develop
 
 jobs:
-  init:
+  tests:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        go-version: 1.18
-
     steps:
-        uses: actions/checkout@v3
-        name: Starting Golang ${{ matrix.go-version }}
+      - name: Install Go
+        uses: actions/setup-go@v3
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: 1.18
 
-        name: Install modules
-        run: go mod tidy
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-        name: Build project
-        run: go build cmd/app/app.go
+      - name: Test project
+        run: echo Testing...
 

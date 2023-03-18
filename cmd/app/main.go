@@ -1,8 +1,8 @@
 package main
 
 import (
-	"walkom/internal/app"
-	"walkom/pkg/logging"
+	"github.com/b0shka/walkom-backend/internal/app"
+	"github.com/b0shka/walkom-backend/pkg/logging"
 )
 
 func main() {

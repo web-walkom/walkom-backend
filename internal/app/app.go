@@ -3,10 +3,11 @@ package app
 import (
 	"net/http"
 	"os"
-	"walkom/internal/handler"
-	"walkom/internal/repository"
-	"walkom/internal/service"
-	"walkom/pkg/logging"
+
+	"github.com/b0shka/walkom-backend/internal/handler"
+	"github.com/b0shka/walkom-backend/internal/repository"
+	"github.com/b0shka/walkom-backend/internal/service"
+	"github.com/b0shka/walkom-backend/pkg/logging"
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
@@ -64,8 +65,4 @@ func (s *Server) Run() error {
 
 	logger.Info("Listen server...")
 	return s.httpServer.ListenAndServe()
-	// return s.httpServer.ListenAndServeTLS(
-	// 	os.Getenv("PATH_TLS_CERT"),
-	// 	os.Getenv("PATH_TLS_KEY"),
-	// )
 }

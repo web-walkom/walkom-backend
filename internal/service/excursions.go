@@ -2,8 +2,9 @@ package service
 
 import (
 	"context"
-	"walkom/internal/domain"
-	"walkom/internal/repository"
+
+	"github.com/b0shka/walkom-backend/internal/domain"
+	"github.com/b0shka/walkom-backend/internal/repository"
 
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"

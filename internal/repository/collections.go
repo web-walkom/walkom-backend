@@ -1,6 +1,7 @@
 package repository
 
 const (
-	usersCollection       = "users"
-	excursionsCollections = "excursions"
+	verifyEmailsCollection = "verify_emails"
+	usersCollection        = "users"
+	excursionsCollection   = "excursions"
 )

@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"walkom/internal/service"
-	"walkom/pkg/logging"
+	"github.com/b0shka/walkom-backend/internal/service"
+	"github.com/b0shka/walkom-backend/pkg/logging"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -29,9 +29,6 @@ func NewHandler(
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {
-	//gin.SetMode(gin.ReleaseMode)
-	//gin.SetMode(gin.DebugMode)
-
 	router := gin.Default()
 
 	router.Use(
@@ -49,6 +46,17 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	api := router.Group("/api")
 	{
+		auth := api.Group("/auth")
+		{
+			auth.POST("/send-code", h.SendEmailCode)
+			auth.POST("/check-code", h.CheckEmailCode)
+		}
+
+		user := api.Group("/user", h.userIdentity)
+		{
+			user.GET("/:id", h.GetUserById)
+		}
+
 		excursions := api.Group("/excursions")
 		{
 			excursions.GET("", h.GetAllExcursions)
