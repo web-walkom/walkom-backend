@@ -1,0 +1,18 @@
+http:
+  port: 8000
+  maxHeaderBytes: 1
+  readTimeout: 10s
+  writeTimeout: 10s
+
+auth:
+  accessTokenTTL: 720h
+
+smtp:
+  host: "smtp.gmail.com"
+  port: 587
+
+email:
+  templates:
+    verify_email: "./templates/verify_email.html"
+  subjects:
+    verify_email: "Код подтверждения для входа в аккаунт"

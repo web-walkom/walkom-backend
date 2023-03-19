@@ -39,9 +39,9 @@ func NewAuthService(repo repository.Auth) *AuthService {
 func (s *AuthService) SendCodeEmail(ctx context.Context, inp domain.AuthEmail) error {
 	emailService := email.NewEmailService(
 		domain.EmailSender{
-			Name: os.Getenv("EMAIL_SENDER_NAME"),
-			FromEmailAddress: os.Getenv("EMAIL_SENDER_ADDRESS"),
-			FromEmailPassword: os.Getenv("EMAIL_SENDER_PASSWORD"),
+			Name: os.Getenv("EMAIL_SERVICE_NAME"),
+			FromEmailAddress: os.Getenv("EMAIL_SERVICE_ADDRESS"),
+			FromEmailPassword: os.Getenv("EMAIL_SERVICE_PASSWORD"),
 		},
 	)
 
@@ -62,7 +62,7 @@ func (s *AuthService) SendCodeEmail(ctx context.Context, inp domain.AuthEmail) e
 		return err
 	}
 
-	emailConfig := domain.EmailConfig{Subject: subject, Content: content.String()}
+	emailConfig := domain.EmailData{Subject: subject, Content: content.String()}
 	err = emailService.SendEmail(emailConfig, inp.Email)
 	if err != nil {
 		return err

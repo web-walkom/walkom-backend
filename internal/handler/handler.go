@@ -14,9 +14,7 @@ type Handler struct {
 	logger   logging.Logger
 }
 
-func NewHandler(
-	services *service.Services,
-) *Handler {
+func NewHandler(services *service.Services) *Handler {
 	logger := logging.GetLogger()
 	if err := godotenv.Load(); err != nil {
 		logger.Fatalf("Error loading env variables: %s", err.Error())

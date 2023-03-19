@@ -14,10 +14,14 @@ The server part of the service [walkom.ru](https://walkom.ru)
 
 Create `.env` file in root directory and add following values:
 ```
-MONDO_URI = mongodb://mongodb:27017
-MONGO_USER = admin
-MONGO_PASSWORD = qwerty
-FRONTEND_URL = http://localhost:3000
+MONDO_URI=mongodb://mongodb:27017
+MONGO_DB_NAME=<db name>
+
+EMAIL_SERVICE_NAME=<name complany>
+EMAIL_SERVICE_ADDRESS=<email address>
+EMAIL_SERVICE_PASSWORD=<email password>
+
+SECRET_KEY=<random string>
 ```
 
 To install all the dependencies, run

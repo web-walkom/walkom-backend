@@ -6,7 +6,7 @@ type EmailSender struct {
 	FromEmailPassword string
 }
 
-type EmailConfig struct {
+type EmailData struct {
 	Subject string
 	Content string
 }

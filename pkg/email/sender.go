@@ -13,7 +13,7 @@ const (
 	smtpServerAddress = "smtp.gmail.com:587"
 )
 
-func (s *EmailService) SendEmail(config domain.EmailConfig, toEmail string) error {
+func (s *EmailService) SendEmail(config domain.EmailData, toEmail string) error {
 	e := email.NewEmail()
 
 	e.From = fmt.Sprintf("%s <%s>", s.sender.Name, s.sender.FromEmailAddress)
