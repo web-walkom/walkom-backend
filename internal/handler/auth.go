@@ -54,7 +54,6 @@ func (h *Handler) CheckCodeEmail(c *gin.Context) {
 		return
 	}
 
-	h.logger.Infof("Auth user %s", res.ID)
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"id":          res.ID,
 		"email":       inp.Email,

@@ -7,6 +7,7 @@ import (
 	"github.com/b0shka/walkom-backend/internal/handler"
 	"github.com/b0shka/walkom-backend/internal/repository"
 	"github.com/b0shka/walkom-backend/internal/service"
+	"github.com/b0shka/walkom-backend/pkg/email"
 	"github.com/b0shka/walkom-backend/pkg/logging"
 )
 
@@ -35,8 +36,21 @@ func (s *Server) Run() {
 
 	db := mongoClient.Database(cfg.Mongo.DBName)
 
+	emailService := email.NewEmailService(
+		cfg.Email.ServiceName,
+		cfg.Email.ServiceAddress,
+		cfg.Email.ServicePassword,
+		cfg.SMTP.Host,
+		cfg.SMTP.Port,
+	)
+
 	repos := repository.NewRepositories(db)
-	services := service.NewServices(repos)
+	services := service.NewServices(service.Deps{
+		Repos: repos,
+		EmailService: *emailService,
+		EmailConfig: cfg.Email,
+		AccessTokenTTL: cfg.Auth.JWT.AccessTokenTTL,
+	})
 
 	handlers := handler.NewHandler(services)
 	routes := handlers.InitRoutes()

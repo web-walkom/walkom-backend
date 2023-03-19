@@ -1,12 +1,6 @@
 package domain
 
-type EmailSender struct {
-	Name string
-	FromEmailAddress string
-	FromEmailPassword string
-}
-
-type EmailData struct {
+type EmailVerify struct {
 	Subject string
 	Content string
 }

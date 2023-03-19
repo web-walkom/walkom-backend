@@ -2,9 +2,12 @@ package service
 
 import (
 	"context"
+	"github.com/b0shka/walkom-backend/internal/config"
+	"time"
 
 	"github.com/b0shka/walkom-backend/internal/domain"
 	"github.com/b0shka/walkom-backend/internal/repository"
+	"github.com/b0shka/walkom-backend/pkg/email"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -31,10 +34,17 @@ type Services struct {
 	Excursions Excursions
 }
 
-func NewServices(repos *repository.Repositories) *Services {
+type Deps struct {
+	Repos *repository.Repositories
+	EmailService email.EmailService
+	EmailConfig config.EmailConfig
+	AccessTokenTTL time.Duration
+}
+
+func NewServices(deps Deps) *Services {
 	return &Services{
-		Auth:       NewAuthService(repos.Auth),
-		Users:      NewUsersService(repos.Users),
-		Excursions: NewExcursionsService(repos.Excursions),
+		Auth:       NewAuthService(deps.Repos.Auth, deps.EmailService, deps.EmailConfig, deps.AccessTokenTTL),
+		Users:      NewUsersService(deps.Repos.Users),
+		Excursions: NewExcursionsService(deps.Repos.Excursions),
 	}
 }

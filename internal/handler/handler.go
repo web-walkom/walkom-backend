@@ -2,27 +2,18 @@ package handler
 
 import (
 	"github.com/b0shka/walkom-backend/internal/service"
-	"github.com/b0shka/walkom-backend/pkg/logging"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 type Handler struct {
 	services *service.Services
-	logger   logging.Logger
 }
 
 func NewHandler(services *service.Services) *Handler {
-	logger := logging.GetLogger()
-	if err := godotenv.Load(); err != nil {
-		logger.Fatalf("Error loading env variables: %s", err.Error())
-	}
-
 	return &Handler{
 		services: services,
-		logger:   logger,
 	}
 }
 

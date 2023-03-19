@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -21,6 +20,5 @@ func (h *Handler) GetUserById(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(user)
 	c.JSON(http.StatusOK, user)
 }

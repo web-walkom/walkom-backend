@@ -13,8 +13,7 @@ func (h *Handler) GetAllExcursions(c *gin.Context) {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-
-	h.logger.Info("Successfully received a list of all excursions")
+	
 	c.JSON(http.StatusOK, excursions)
 }
 

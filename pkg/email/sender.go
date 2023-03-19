@@ -8,24 +8,14 @@ import (
 	"github.com/jordan-wright/email"
 )
 
-const (
-	smtpAddress       = "smtp.gmail.com"
-	smtpServerAddress = "smtp.gmail.com:587"
-)
-
-func (s *EmailService) SendEmail(config domain.EmailData, toEmail string) error {
+func (s *EmailService) SendEmail(config domain.EmailVerify, toEmail string) error {
 	e := email.NewEmail()
 
-	e.From = fmt.Sprintf("%s <%s>", s.sender.Name, s.sender.FromEmailAddress)
+	e.From = fmt.Sprintf("%s <%s>", s.Name, s.FromEmail)
 	e.Subject = config.Subject
 	e.HTML = []byte(config.Content)
 	e.To = []string{toEmail}
 
-	smtpAuth := smtp.PlainAuth(
-		"",
-		s.sender.FromEmailAddress,
-		s.sender.FromEmailPassword,
-		smtpAddress,
-	)
-	return e.Send(smtpServerAddress, smtpAuth)
+	smtpAuth := smtp.PlainAuth("", s.FromEmail, s.FromPassword, s.Host)
+	return e.Send(fmt.Sprintf("%s:%d", s.Host, s.Port), smtpAuth)
 }

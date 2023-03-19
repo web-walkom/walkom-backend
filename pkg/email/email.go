@@ -1,13 +1,19 @@
 package email
 
-import "github.com/b0shka/walkom-backend/internal/domain"
-
 type EmailService struct {
-	sender domain.EmailSender
+	Name string
+	FromEmail string
+	FromPassword string
+	Host string
+	Port int
 }
 
-func NewEmailService(sender domain.EmailSender) *EmailService {
+func NewEmailService(name, fromEmail, fromPassword, host string, port int) *EmailService {
 	return &EmailService{
-		sender: sender,
+		Name: name,
+		FromEmail: fromEmail,
+		FromPassword: fromPassword,
+		Host: host,
+		Port: port,
 	}
 }

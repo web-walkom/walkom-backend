@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"context"
+	"github.com/b0shka/walkom-backend/internal/config"
 	"html/template"
 	"os"
 	"time"
@@ -13,43 +14,30 @@ import (
 	"github.com/b0shka/walkom-backend/pkg/utils"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/joho/godotenv"
-	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-)
-
-const (
-	pathTemplateVerifyEmail = "templates/verify_email.html"
-	accessTokenTTL = 30 * 24 * time.Hour
-	// refreshTokenTTL = 30 * 24 * time.Hour
 )
 
 type AuthService struct {
 	repo repository.Auth
+	emailService email.EmailService
+	emailConfig config.EmailConfig
+	accessTokenTTL time.Duration
 }
 
-func NewAuthService(repo repository.Auth) *AuthService {
-	if err := godotenv.Load(); err != nil {
-		logrus.Fatalf("error loading env variables: %s", err.Error())
+func NewAuthService(repo repository.Auth, emailService email.EmailService, emailConfig config.EmailConfig, accessTokenTTL time.Duration) *AuthService {
+	return &AuthService{
+		repo: repo,
+		emailService: emailService,
+		emailConfig: emailConfig,
+		accessTokenTTL: accessTokenTTL,
 	}
-
-	return &AuthService{repo: repo}
 }
 
 func (s *AuthService) SendCodeEmail(ctx context.Context, inp domain.AuthEmail) error {
-	emailService := email.NewEmailService(
-		domain.EmailSender{
-			Name: os.Getenv("EMAIL_SERVICE_NAME"),
-			FromEmailAddress: os.Getenv("EMAIL_SERVICE_ADDRESS"),
-			FromEmailPassword: os.Getenv("EMAIL_SERVICE_PASSWORD"),
-		},
-	)
-
-	subject := "Код подтверждения для входа в аккаунт"
 	secretCode := utils.RandomInt(100000, 999999)
 
 	var content bytes.Buffer
-	contentHtml, err := template.ParseFiles(pathTemplateVerifyEmail)
+	contentHtml, err := template.ParseFiles(s.emailConfig.Templates.Verify)
 	if err != nil {
 		return domain.ErrReadTemplate
 	}
@@ -62,8 +50,11 @@ func (s *AuthService) SendCodeEmail(ctx context.Context, inp domain.AuthEmail) e
 		return err
 	}
 
-	emailConfig := domain.EmailData{Subject: subject, Content: content.String()}
-	err = emailService.SendEmail(emailConfig, inp.Email)
+	emailConfig := domain.EmailVerify{
+		Subject: s.emailConfig.Subjects.Verify,
+		Content: content.String(),
+	}
+	err = s.emailService.SendEmail(emailConfig, inp.Email)
 	if err != nil {
 		return err
 	}
@@ -101,7 +92,7 @@ func (s *AuthService) CreateSession(id primitive.ObjectID) (domain.UserToken, er
 	)
 
 	res.ID = id
-	res.AccessToken, err = NewJWT(id.Hex(), accessTokenTTL)
+	res.AccessToken, err = NewJWT(id.Hex(), s.accessTokenTTL)
 	if err != nil {
 		return res, err
 	}
