@@ -9,9 +9,9 @@ import (
 )
 
 type Auth interface {
-	CreateVerifyEmail(ctx context.Context, email string, secret_code int32) error
+	SendCodeEmail(ctx context.Context, inp domain.AuthEmail) error
 	CheckSecretCode(ctx context.Context, data domain.AuthCode) error
-	CreateSession(ctx context.Context, id primitive.ObjectID) (domain.UserToken, error)
+	CreateSession(id primitive.ObjectID) (domain.UserToken, error)
 	ParseToken(Token string) (string, error)
 }
 

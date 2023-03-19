@@ -20,10 +20,10 @@ func NewAuthRepo(db *mongo.Database) *AuthRepo {
 	}
 }
 
-func (r *AuthRepo) CreateVerifyEmail(ctx context.Context, email string, secret_code int32) error {
+func (r *AuthRepo) AddVerifyEmail(ctx context.Context, email string, secretCode int32) error {
 	_, err := r.db.InsertOne(ctx, bson.M{
 		"email":       email,
-		"secret_code": secret_code,
+		"secret_code": secretCode,
 		"created_at":  time.Now().Unix(),
 		"expired_at":  time.Now().Unix() + 900,
 	})

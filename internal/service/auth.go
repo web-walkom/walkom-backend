@@ -4,9 +4,13 @@ import (
 	"context"
 	"os"
 	"time"
+	"bytes"
+	"html/template"
 
 	"github.com/b0shka/walkom-backend/internal/domain"
 	"github.com/b0shka/walkom-backend/internal/repository"
+	"github.com/b0shka/walkom-backend/pkg/email"
+	"github.com/b0shka/walkom-backend/pkg/utils"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/joho/godotenv"
@@ -15,6 +19,7 @@ import (
 )
 
 const (
+	pathTemplateVerifyEmail = "templates/verify_email.html"
 	accessTokenTTL = 30 * 24 * time.Hour
 	// refreshTokenTTL = 30 * 24 * time.Hour
 )
@@ -31,8 +36,36 @@ func NewAuthService(repo repository.Auth) *AuthService {
 	return &AuthService{repo: repo}
 }
 
-func (s *AuthService) CreateVerifyEmail(ctx context.Context, email string, secret_code int32) error {
-	return s.repo.CreateVerifyEmail(ctx, email, secret_code)
+func (s *AuthService) SendCodeEmail(ctx context.Context, inp domain.AuthEmail) error {
+	emailService := email.NewEmailService(
+		domain.EmailSender{
+			Name: os.Getenv("EMAIL_SENDER_NAME"),
+			FromEmailAddress: os.Getenv("EMAIL_SENDER_ADDRESS"),
+			FromEmailPassword: os.Getenv("EMAIL_SENDER_PASSWORD"),
+		},
+	)
+
+	subject := "Код подтверждения для входа в аккаунт"
+	secretCode := utils.RandomInt(100000, 999999)
+
+	var content bytes.Buffer
+	contentHtml, err := template.ParseFiles(pathTemplateVerifyEmail)
+	if err != nil {
+		return domain.ErrReadTemplate
+	}
+
+	contentHtml.Execute(&content, domain.AuthCode{
+		Email: inp.Email,
+		SecretCode: secretCode,
+	})
+
+	emailConfig := domain.EmailConfig{Subject: subject, Content: content.String()}
+	err = emailService.SendEmail(emailConfig, inp.Email)
+	if err != nil {
+		return err
+	}
+
+	return s.repo.AddVerifyEmail(ctx, inp.Email, secretCode)
 }
 
 func (s *AuthService) CheckSecretCode(ctx context.Context, data domain.AuthCode) error {
@@ -48,7 +81,7 @@ func (s *AuthService) CheckSecretCode(ctx context.Context, data domain.AuthCode)
 	return domain.ErrSecretCodeExpired
 }
 
-func (s *AuthService) CreateSession(ctx context.Context, id primitive.ObjectID) (domain.UserToken, error) {
+func (s *AuthService) CreateSession(id primitive.ObjectID) (domain.UserToken, error) {
 	var (
 		res domain.UserToken
 		err error

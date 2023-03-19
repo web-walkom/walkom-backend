@@ -1,39 +1,20 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/b0shka/walkom-backend/internal/domain"
-	"github.com/b0shka/walkom-backend/pkg/utils"
 	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) SendEmailCode(c *gin.Context) {
+func (h *Handler) SendCodeEmail(c *gin.Context) {
 	var inp domain.AuthEmail
 	if err := c.BindJSON(&inp); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Invalid input body")
+		newErrorResponse(c, http.StatusBadRequest, domain.ErrInvalidInput.Error())
 		return
 	}
 
-	sender := NewGmailSender(os.Getenv("EMAIL_SENDER_NAME"), os.Getenv("EMAIL_SENDER_ADDRESS"), os.Getenv("EMAIL_SENDER_PASSWORD"))
-
-	subject := "Код подтверждения для входа в аккаунт"
-	to := inp.Email
-	secret_code := utils.RandomInt(100000, 999999)
-	content := fmt.Sprintf(`
-	<p>Вы отправили запрос на вход в аккаунт под адресом %s.</p>
-	<p>Код подтверждения: %d</p>
-	`, to, secret_code)
-
-	err := sender.SendEmail(subject, content, to)
-	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	err = h.services.Auth.CreateVerifyEmail(c, to, secret_code)
+	err := h.services.Auth.SendCodeEmail(c, inp)
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
@@ -42,10 +23,10 @@ func (h *Handler) SendEmailCode(c *gin.Context) {
 	c.JSON(http.StatusOK, "ok")
 }
 
-func (h *Handler) CheckEmailCode(c *gin.Context) {
+func (h *Handler) CheckCodeEmail(c *gin.Context) {
 	var inp domain.AuthCode
 	if err := c.BindJSON(&inp); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Invalid input body")
+		newErrorResponse(c, http.StatusBadRequest, domain.ErrInvalidInput.Error())
 		return
 	}
 
@@ -67,7 +48,7 @@ func (h *Handler) CheckEmailCode(c *gin.Context) {
 		return
 	}
 
-	res, err := h.services.Auth.CreateSession(c, user.ID)
+	res, err := h.services.Auth.CreateSession(user.ID)
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return

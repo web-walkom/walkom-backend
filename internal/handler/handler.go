@@ -38,7 +38,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
+		AllowMethods:     []string{"GET", "POST"},
 		AllowHeaders:     []string{"Content-Type,access-control-allow-origin, access-control-allow-headers,authorization,my-custom-header"},
 		AllowCredentials: true,
 		ExposeHeaders:    []string{"Content-Length"},
@@ -48,8 +48,8 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		auth := api.Group("/auth")
 		{
-			auth.POST("/send-code", h.SendEmailCode)
-			auth.POST("/check-code", h.CheckEmailCode)
+			auth.POST("/send-code", h.SendCodeEmail)
+			auth.POST("/check-code", h.CheckCodeEmail)
 		}
 
 		user := api.Group("/user", h.userIdentity)

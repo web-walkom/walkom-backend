@@ -14,4 +14,7 @@ var (
 	ErrNoAuthorized     = errors.New("Не авторизован")
 	ErrParseToken       = errors.New("Ошибка при парсинге токена")
 	ErrUnexpectedMethod = errors.New("Неожиданный способ подписи токена")
+
+	ErrInvalidInput = errors.New("Не верные входные данные")
+	ErrReadTemplate = errors.New("Ошибка при чтении шаблона HTML")
 )

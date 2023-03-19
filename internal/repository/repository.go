@@ -9,7 +9,7 @@ import (
 )
 
 type Auth interface {
-	CreateVerifyEmail(ctx context.Context, email string, secret_code int32) error
+	AddVerifyEmail(ctx context.Context, email string, secretCode int32) error
 	GetVerifyEmail(ctx context.Context, data domain.AuthCode) (domain.VerifyEmail, error)
 }
 
