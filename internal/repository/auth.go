@@ -3,10 +3,10 @@ package repository
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/b0shka/walkom-backend/internal/domain"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -20,20 +20,15 @@ func NewAuthRepo(db *mongo.Database) *AuthRepo {
 	}
 }
 
-func (r *AuthRepo) AddVerifyEmail(ctx context.Context, email string, secretCode int32) error {
-	_, err := r.db.InsertOne(ctx, bson.M{
-		"email":       email,
-		"secret_code": secretCode,
-		"created_at":  time.Now().Unix(),
-		"expired_at":  time.Now().Unix() + 900,
-	})
+func (r *AuthRepo) AddVerifyEmail(ctx context.Context, verifyEmail domain.NewVerifyEmail) error {
+	_, err := r.db.InsertOne(ctx, verifyEmail)
 	return err
 }
 
-func (r *AuthRepo) GetVerifyEmail(ctx context.Context, data domain.AuthCode) (domain.VerifyEmail, error) {
+func (r *AuthRepo) GetVerifyEmail(ctx context.Context, inp domain.AuthCode) (domain.VerifyEmail, error) {
 	var verifyEmail domain.VerifyEmail
 
-	if err := r.db.FindOne(ctx, data).Decode(&verifyEmail); err != nil {
+	if err := r.db.FindOne(ctx, inp).Decode(&verifyEmail); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return domain.VerifyEmail{}, domain.ErrSecretCodeInvalid
 		}
@@ -41,4 +36,9 @@ func (r *AuthRepo) GetVerifyEmail(ctx context.Context, data domain.AuthCode) (do
 	}
 
 	return verifyEmail, nil
+}
+
+func (r *AuthRepo) RemoveVerifyEmail(ctx context.Context, id primitive.ObjectID) error {
+	_, err := r.db.DeleteOne(ctx, bson.M{"_id": id})
+	return err
 }

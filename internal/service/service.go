@@ -10,7 +10,7 @@ import (
 
 type Auth interface {
 	SendCodeEmail(ctx context.Context, inp domain.AuthEmail) error
-	CheckSecretCode(ctx context.Context, data domain.AuthCode) error
+	CheckSecretCode(ctx context.Context, inp domain.AuthCode) error
 	CreateSession(id primitive.ObjectID) (domain.UserToken, error)
 	ParseToken(Token string) (string, error)
 }

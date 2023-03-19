@@ -1,11 +1,11 @@
 package service
 
 import (
+	"bytes"
 	"context"
+	"html/template"
 	"os"
 	"time"
-	"bytes"
-	"html/template"
 
 	"github.com/b0shka/walkom-backend/internal/domain"
 	"github.com/b0shka/walkom-backend/internal/repository"
@@ -54,10 +54,13 @@ func (s *AuthService) SendCodeEmail(ctx context.Context, inp domain.AuthEmail) e
 		return domain.ErrReadTemplate
 	}
 
-	contentHtml.Execute(&content, domain.AuthCode{
-		Email: inp.Email,
+	err = contentHtml.Execute(&content, domain.AuthCode{
+		Email:      inp.Email,
 		SecretCode: secretCode,
 	})
+	if err != nil {
+		return err
+	}
 
 	emailConfig := domain.EmailConfig{Subject: subject, Content: content.String()}
 	err = emailService.SendEmail(emailConfig, inp.Email)
@@ -65,16 +68,26 @@ func (s *AuthService) SendCodeEmail(ctx context.Context, inp domain.AuthEmail) e
 		return err
 	}
 
-	return s.repo.AddVerifyEmail(ctx, inp.Email, secretCode)
+	verifyEmail := domain.NewVerifyEmail{
+		Email: inp.Email,
+		SecretCode: secretCode,
+		CreatedAt: time.Now().Unix(),
+		ExpiredAt: time.Now().Unix() + 900,
+	}
+	return s.repo.AddVerifyEmail(ctx, verifyEmail)
 }
 
-func (s *AuthService) CheckSecretCode(ctx context.Context, data domain.AuthCode) error {
-	verifyEmail, err := s.repo.GetVerifyEmail(ctx, data)
+func (s *AuthService) CheckSecretCode(ctx context.Context, inp domain.AuthCode) error {
+	verifyEmail, err := s.repo.GetVerifyEmail(ctx, inp)
 	if err != nil {
 		return err
 	}
 
 	if time.Now().Unix() <= verifyEmail.ExpiredAt {
+		err = s.repo.RemoveVerifyEmail(ctx, verifyEmail.ID)
+		if err != nil {
+			return err
+		}
 		return nil
 	}
 
@@ -92,11 +105,6 @@ func (s *AuthService) CreateSession(id primitive.ObjectID) (domain.UserToken, er
 	if err != nil {
 		return res, err
 	}
-
-	//res.RefreshToken, err = NewJWT(id.Hex(), refreshTokenTTL)
-	//if err != nil {
-	//	return res, err
-	//}
 
 	return res, nil
 }

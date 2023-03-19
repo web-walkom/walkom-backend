@@ -9,8 +9,9 @@ import (
 )
 
 type Auth interface {
-	AddVerifyEmail(ctx context.Context, email string, secretCode int32) error
-	GetVerifyEmail(ctx context.Context, data domain.AuthCode) (domain.VerifyEmail, error)
+	AddVerifyEmail(ctx context.Context, verifyEmail domain.NewVerifyEmail) error
+	GetVerifyEmail(ctx context.Context, inp domain.AuthCode) (domain.VerifyEmail, error)
+	RemoveVerifyEmail(ctx context.Context, id primitive.ObjectID) error
 }
 
 type Users interface {
