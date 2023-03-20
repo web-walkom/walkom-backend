@@ -5,7 +5,9 @@ http:
   writeTimeout: 10s
 
 auth:
-  accessTokenTTL: 720h
+  jwt:
+    accessTokenTTL: 720h
+  sercetCodeLifetime: 900
 
 smtp:
   host: "smtp.gmail.com"

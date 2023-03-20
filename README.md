@@ -24,13 +24,6 @@ EMAIL_SERVICE_PASSWORD=<email password>
 SECRET_KEY=<random string>
 ```
 
-To install all the dependencies, run
-```
-go mod download
-```
-
-Also, in the `configs/config.yml` file, specify your mongodb database name
-
 ---
 ## Build & Run
 The port on which the service will be launched is specified in the file `configs/config.yml`

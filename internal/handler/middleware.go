@@ -16,7 +16,7 @@ const (
 func (h *Handler) userIdentity(c *gin.Context) {
 	_, err := h.parseAuthHeader(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		h.newErrorResponse(c, http.StatusBadRequest, err, err)
 		return
 	}
 }

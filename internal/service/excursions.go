@@ -5,9 +5,6 @@ import (
 
 	"github.com/b0shka/walkom-backend/internal/domain"
 	"github.com/b0shka/walkom-backend/internal/repository"
-
-	"github.com/joho/godotenv"
-	"github.com/sirupsen/logrus"
 )
 
 type ExcursionsService struct {
@@ -15,10 +12,6 @@ type ExcursionsService struct {
 }
 
 func NewExcursionsService(repo repository.Excursions) *ExcursionsService {
-	if err := godotenv.Load(); err != nil {
-		logrus.Fatalf("error loading env variables: %s", err.Error())
-	}
-
 	return &ExcursionsService{repo: repo}
 }
 

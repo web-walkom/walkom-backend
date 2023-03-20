@@ -3,13 +3,11 @@ package service
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/b0shka/walkom-backend/internal/domain"
 	"github.com/b0shka/walkom-backend/internal/repository"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-
-	"github.com/joho/godotenv"
-	"github.com/sirupsen/logrus"
 )
 
 type UsersService struct {
@@ -17,10 +15,6 @@ type UsersService struct {
 }
 
 func NewUsersService(repo repository.Users) *UsersService {
-	if err := godotenv.Load(); err != nil {
-		logrus.Fatalf("error loading env variables: %s", err.Error())
-	}
-
 	return &UsersService{repo: repo}
 }
 
@@ -28,7 +22,10 @@ func (s *UsersService) CreateUserIfNotExist(ctx context.Context, email string) e
 	_, err := s.repo.GetUserByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, domain.ErrUserNotFound) {
-			return s.repo.CreateUser(ctx, email)
+			return s.repo.CreateUser(ctx, domain.NewUser{
+				Email: email,
+				CreatedAt: time.Now().Unix(),
+			})
 		}
 		return err
 	}

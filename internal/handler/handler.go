@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/b0shka/walkom-backend/internal/service"
+	"github.com/b0shka/walkom-backend/pkg/logger"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -9,11 +10,16 @@ import (
 
 type Handler struct {
 	services *service.Services
+	log logger.Logger
 }
 
-func NewHandler(services *service.Services) *Handler {
+func NewHandler(
+	services *service.Services,
+	log logger.Logger,
+) *Handler {
 	return &Handler{
 		services: services,
+		log: log,
 	}
 }
 

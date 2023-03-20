@@ -40,6 +40,7 @@ type (
 
 	AuthConfig struct {
 		JWT JWTConfig
+		SercetCodeLifetime int
 		SecretKey string
 	}
 
@@ -94,7 +95,11 @@ func unmarshal(cfg *Config) error {
 		return err
 	}
 
-	if err := viper.UnmarshalKey("auth", &cfg.Auth.JWT); err != nil {
+	if err := viper.UnmarshalKey("auth.jwt", &cfg.Auth.JWT); err != nil {
+		return err
+	}
+
+	if err := viper.UnmarshalKey("auth.sercetCodeLifetime", &cfg.Auth.SercetCodeLifetime); err != nil {
 		return err
 	}
 

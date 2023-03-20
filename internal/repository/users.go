@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/b0shka/walkom-backend/internal/domain"
 	"go.mongodb.org/mongo-driver/bson"
@@ -21,11 +20,8 @@ func NewUsersRepo(db *mongo.Database) *UsersRepo {
 	}
 }
 
-func (r *UsersRepo) CreateUser(ctx context.Context, email string) error {
-	_, err := r.db.InsertOne(ctx, bson.M{
-		"email":      email,
-		"created_at": time.Now().Unix(),
-	})
+func (r *UsersRepo) CreateUser(ctx context.Context, user domain.NewUser) error {
+	_, err := r.db.InsertOne(ctx, user)
 	return err
 }
 

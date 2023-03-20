@@ -12,12 +12,6 @@ const (
 	timeout = 10 * time.Second
 )
 
-type Config struct {
-	Username string
-	Password string
-	DBName   string
-}
-
 func NewMongoDB(URL_DB string) (*mongo.Client, error) {
 	client, err := mongo.NewClient(options.Client().ApplyURI(URL_DB))
 	if err != nil {

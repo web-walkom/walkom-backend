@@ -3,11 +3,10 @@ package service
 import (
 	"bytes"
 	"context"
-	"github.com/b0shka/walkom-backend/internal/config"
 	"html/template"
-	"os"
 	"time"
 
+	"github.com/b0shka/walkom-backend/internal/config"
 	"github.com/b0shka/walkom-backend/internal/domain"
 	"github.com/b0shka/walkom-backend/internal/repository"
 	"github.com/b0shka/walkom-backend/pkg/email"
@@ -21,15 +20,20 @@ type AuthService struct {
 	repo repository.Auth
 	emailService email.EmailService
 	emailConfig config.EmailConfig
-	accessTokenTTL time.Duration
+	authConfig config.AuthConfig
 }
 
-func NewAuthService(repo repository.Auth, emailService email.EmailService, emailConfig config.EmailConfig, accessTokenTTL time.Duration) *AuthService {
+func NewAuthService(
+	repo repository.Auth,
+	emailService email.EmailService,
+	emailConfig config.EmailConfig,
+	authConfig config.AuthConfig,
+) *AuthService {
 	return &AuthService{
 		repo: repo,
 		emailService: emailService,
 		emailConfig: emailConfig,
-		accessTokenTTL: accessTokenTTL,
+		authConfig: authConfig,
 	}
 }
 
@@ -39,7 +43,7 @@ func (s *AuthService) SendCodeEmail(ctx context.Context, inp domain.AuthEmail) e
 	var content bytes.Buffer
 	contentHtml, err := template.ParseFiles(s.emailConfig.Templates.Verify)
 	if err != nil {
-		return domain.ErrReadTemplate
+		return err
 	}
 
 	err = contentHtml.Execute(&content, domain.AuthCode{
@@ -63,7 +67,7 @@ func (s *AuthService) SendCodeEmail(ctx context.Context, inp domain.AuthEmail) e
 		Email: inp.Email,
 		SecretCode: secretCode,
 		CreatedAt: time.Now().Unix(),
-		ExpiredAt: time.Now().Unix() + 900,
+		ExpiredAt: time.Now().Unix() + int64(s.authConfig.SercetCodeLifetime),
 	}
 	return s.repo.AddVerifyEmail(ctx, verifyEmail)
 }
@@ -85,14 +89,18 @@ func (s *AuthService) CheckSecretCode(ctx context.Context, inp domain.AuthCode) 
 	return domain.ErrSecretCodeExpired
 }
 
-func (s *AuthService) CreateSession(id primitive.ObjectID) (domain.UserToken, error) {
+func (s *AuthService) CreateSession(id primitive.ObjectID) (domain.AuthToken, error) {
 	var (
-		res domain.UserToken
+		res domain.AuthToken
 		err error
 	)
 
 	res.ID = id
-	res.AccessToken, err = NewJWT(id.Hex(), s.accessTokenTTL)
+	res.AccessToken, err = NewJWT(
+		id.Hex(),
+		s.authConfig.JWT.AccessTokenTTL,
+		s.authConfig.SecretKey,
+	)
 	if err != nil {
 		return res, err
 	}
@@ -100,13 +108,13 @@ func (s *AuthService) CreateSession(id primitive.ObjectID) (domain.UserToken, er
 	return res, nil
 }
 
-func NewJWT(id string, tokenTTL time.Duration) (string, error) {
+func NewJWT(id string, tokenTTL time.Duration, secretKey string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
 		ExpiresAt: time.Now().Add(tokenTTL).Unix(),
 		Subject:   id,
 	})
 
-	return token.SignedString([]byte(os.Getenv("SECRET_KEY")))
+	return token.SignedString([]byte(secretKey))
 }
 
 func (s *AuthService) ParseToken(Token string) (string, error) {
@@ -115,7 +123,7 @@ func (s *AuthService) ParseToken(Token string) (string, error) {
 			return nil, domain.ErrUnexpectedMethod
 		}
 
-		return []byte(os.Getenv("SECRET_KEY")), nil
+		return []byte(s.authConfig.SecretKey), nil
 	})
 	if err != nil {
 		return "", domain.ErrNoAuthorized

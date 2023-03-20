@@ -8,7 +8,7 @@ import (
 	"github.com/b0shka/walkom-backend/internal/repository"
 	"github.com/b0shka/walkom-backend/internal/service"
 	"github.com/b0shka/walkom-backend/pkg/email"
-	"github.com/b0shka/walkom-backend/pkg/logging"
+	"github.com/b0shka/walkom-backend/pkg/logger"
 )
 
 const configPath = "configs"
@@ -18,21 +18,21 @@ type Server struct {
 }
 
 func (s *Server) Run() {
-	logger := logging.GetLogger()
+	log := logger.GetLogger()
 
 	cfg, err := config.InitConfig(configPath)
 	if err != nil {
-		logger.Error(err)
+		log.Error(err)
 		return
 	}
-	logger.Info("Success init config")
+	log.Info("Success init config")
 
 	mongoClient, err := repository.NewMongoDB(cfg.Mongo.URI)
 	if err != nil {
-		logger.Error(err)
+		log.Error(err)
 		return
 	}
-	logger.Info("Success connect mongodb")
+	log.Info("Success connect mongodb")
 
 	db := mongoClient.Database(cfg.Mongo.DBName)
 
@@ -49,10 +49,10 @@ func (s *Server) Run() {
 		Repos: repos,
 		EmailService: *emailService,
 		EmailConfig: cfg.Email,
-		AccessTokenTTL: cfg.Auth.JWT.AccessTokenTTL,
+		AuthConfig: cfg.Auth,
 	})
 
-	handlers := handler.NewHandler(services)
+	handlers := handler.NewHandler(services, log)
 	routes := handlers.InitRoutes()
 
 	s.httpServer = &http.Server{
@@ -63,8 +63,8 @@ func (s *Server) Run() {
 		WriteTimeout:   cfg.HTTP.WriteTimeout,
 	}
 
-	logger.Info("Listen server...")
+	log.Info("Listen server...")
 	if err := s.httpServer.ListenAndServe(); err != nil {
-		logger.Errorf("Error run server %s", err.Error())
+		log.Errorf("Error run server %s", err)
 	}
 }
