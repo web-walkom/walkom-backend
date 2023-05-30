@@ -22,6 +22,7 @@ type Users interface {
 
 type Excursions interface {
 	GetAllExcursions(ctx context.Context) ([]domain.Excursion, error)
+	GetExcursionById(ctx context.Context, id primitive.ObjectID) (domain.ExcursionOpen, error)
 }
 
 type Repositories struct {

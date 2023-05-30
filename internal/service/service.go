@@ -25,6 +25,7 @@ type Users interface {
 
 type Excursions interface {
 	GetAllExcursions(ctx context.Context) ([]domain.Excursion, error)
+	GetExcursionById(ctx context.Context, id primitive.ObjectID) (domain.ExcursionOpen, error)
 }
 
 type Services struct {
@@ -34,10 +35,10 @@ type Services struct {
 }
 
 type Deps struct {
-	Repos *repository.Repositories
+	Repos        *repository.Repositories
 	EmailService email.EmailService
-	EmailConfig config.EmailConfig
-	AuthConfig config.AuthConfig
+	EmailConfig  config.EmailConfig
+	AuthConfig   config.AuthConfig
 }
 
 func NewServices(deps Deps) *Services {

@@ -26,8 +26,6 @@ SECRET_KEY=<random string>
 
 ---
 ## Build & Run
-The port on which the service will be launched is specified in the file `configs/config.yml`
-
 To start, run
 ```
 make start

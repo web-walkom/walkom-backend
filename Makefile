@@ -1,5 +1,5 @@
 PROGRAM_NAME = app
-DOCKER_ACCOUNT = b0shka
+REGISTRY = b0shka
 API_IMAGE = walkom-backend
 TAG = stable
 
@@ -20,10 +20,10 @@ clean:
 	rmdir .bin
 
 docker-build:
-	docker build -f deploy/Dockerfile -t ${DOCKER_ACCOUNT}/${API_IMAGE}:${TAG} .
+	docker build -f deploy/Dockerfile -t ${REGISTRY}/${API_IMAGE}:${TAG} .
 
 docker-run:
-	docker run -d -p 8080:8080 -e GIN_MODE=release --rm --name ${API_IMAGE} ${DOCKER_ACCOUNT}/${API_IMAGE}:${TAG}
+	docker run -d -p 8000:8000 -e GIN_MODE=release --rm --name ${API_IMAGE} ${REGISTRY}/${API_IMAGE}:${TAG}
 
 docker-push:
-	docker push ${DOCKER_ACCOUNT}/${API_IMAGE}:${TAG}
+	docker push ${REGISTRY}/${API_IMAGE}:${TAG}

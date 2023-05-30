@@ -6,6 +6,7 @@ import (
 	"github.com/b0shka/walkom-backend/internal/domain"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -32,4 +33,14 @@ func (r *ExcursionsRepo) GetAllExcursions(ctx context.Context) ([]domain.Excursi
 	}
 
 	return excursions, nil
+}
+
+func (r *ExcursionsRepo) GetExcursionById(ctx context.Context, id primitive.ObjectID) (domain.ExcursionOpen, error) {
+	var excursion domain.ExcursionOpen
+
+	if err := r.db.FindOne(ctx, bson.M{"_id": id}).Decode(&excursion); err != nil {
+		return domain.ExcursionOpen{}, err
+	}
+
+	return excursion, nil
 }
