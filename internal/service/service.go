@@ -21,6 +21,7 @@ type Users interface {
 	CreateUserIfNotExist(ctx context.Context, email string) error
 	GetUserByEmail(ctx context.Context, email string) (domain.User, error)
 	GetUserById(ctx context.Context, id primitive.ObjectID) (domain.User, error)
+	UpdateUser(ctx context.Context, user domain.UpdateUser) error
 }
 
 type Excursions interface {

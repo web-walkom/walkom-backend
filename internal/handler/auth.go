@@ -22,7 +22,7 @@ func (h *Handler) SendCodeEmail(c *gin.Context) {
 	}
 
 	h.log.Infof("Success send code to email: %s", inp.Email)
-	c.JSON(http.StatusOK, "ok")
+	c.JSON(http.StatusOK, domain.ResultSendCode{Status: true})
 }
 
 func (h *Handler) CheckCodeEmail(c *gin.Context) {
@@ -34,12 +34,11 @@ func (h *Handler) CheckCodeEmail(c *gin.Context) {
 
 	err := h.services.Auth.CheckSecretCode(c, inp)
 	if err != nil {
-		if errors.Is(err, domain.ErrSecretCodeInvalid) {
-			c.JSON(http.StatusOK, domain.ErrSecretCodeInvalid.Error())
-			return
-		}
-		if errors.Is(err, domain.ErrSecretCodeExpired) {
-			c.JSON(http.StatusOK, domain.ErrSecretCodeExpired.Error())
+		if errors.Is(err, domain.ErrSecretCodeInvalid) || errors.Is(err, domain.ErrSecretCodeExpired) {
+			c.JSON(http.StatusOK, domain.ResultCheckCode{
+				Status: false,
+				Error:  err.Error(),
+			})
 			return
 		}
 		h.newErrorResponse(c, http.StatusBadRequest, err, domain.ErrCheckCodeEmail)
@@ -64,10 +63,10 @@ func (h *Handler) CheckCodeEmail(c *gin.Context) {
 		return
 	}
 
-	h.log.Infof("Success auth user: %s", inp.Email)
-	c.JSON(http.StatusOK, map[string]interface{}{
-		"id":          res.ID,
-		"email":       inp.Email,
-		"accessToken": res.AccessToken,
+	c.JSON(http.StatusOK, domain.ResultCheckCode{
+		Status:      true,
+		ID:          res.ID,
+		Email:       inp.Email,
+		AccessToken: res.AccessToken,
 	})
 }

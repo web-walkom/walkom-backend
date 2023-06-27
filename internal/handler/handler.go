@@ -10,7 +10,7 @@ import (
 
 type Handler struct {
 	services *service.Services
-	log logger.Logger
+	log      logger.Logger
 }
 
 func NewHandler(
@@ -19,7 +19,7 @@ func NewHandler(
 ) *Handler {
 	return &Handler{
 		services: services,
-		log: log,
+		log:      log,
 	}
 }
 
@@ -50,6 +50,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		user := api.Group("/user", h.userIdentity)
 		{
 			user.GET("/:id", h.GetUserById)
+			user.POST("/:id/update", h.UpdateUser)
 		}
 
 		excursions := api.Group("/excursions")

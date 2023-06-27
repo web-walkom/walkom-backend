@@ -50,3 +50,8 @@ func (r *UsersRepo) GetUserById(ctx context.Context, id primitive.ObjectID) (dom
 
 	return user, nil
 }
+
+func (r *UsersRepo) UpdateUser(ctx context.Context, user domain.UpdateUser) error {
+	_, err := r.db.UpdateOne(ctx, bson.M{"_id": user.ID}, bson.M{"$set": user})
+	return err
+}

@@ -17,10 +17,10 @@ import (
 )
 
 type AuthService struct {
-	repo repository.Auth
+	repo         repository.Auth
 	emailService email.EmailService
-	emailConfig config.EmailConfig
-	authConfig config.AuthConfig
+	emailConfig  config.EmailConfig
+	authConfig   config.AuthConfig
 }
 
 func NewAuthService(
@@ -30,10 +30,10 @@ func NewAuthService(
 	authConfig config.AuthConfig,
 ) *AuthService {
 	return &AuthService{
-		repo: repo,
+		repo:         repo,
 		emailService: emailService,
-		emailConfig: emailConfig,
-		authConfig: authConfig,
+		emailConfig:  emailConfig,
+		authConfig:   authConfig,
 	}
 }
 
@@ -54,7 +54,7 @@ func (s *AuthService) SendCodeEmail(ctx context.Context, inp domain.AuthEmail) e
 		return err
 	}
 
-	emailConfig := domain.EmailVerify{
+	emailConfig := domain.VerifyEmailConfig{
 		Subject: s.emailConfig.Subjects.Verify,
 		Content: content.String(),
 	}
@@ -64,10 +64,10 @@ func (s *AuthService) SendCodeEmail(ctx context.Context, inp domain.AuthEmail) e
 	}
 
 	verifyEmail := domain.NewVerifyEmail{
-		Email: inp.Email,
+		Email:      inp.Email,
 		SecretCode: secretCode,
-		CreatedAt: time.Now().Unix(),
-		ExpiredAt: time.Now().Unix() + int64(s.authConfig.SercetCodeLifetime),
+		CreatedAt:  time.Now().Unix(),
+		ExpiredAt:  time.Now().Unix() + int64(s.authConfig.SercetCodeLifetime),
 	}
 	return s.repo.AddVerifyEmail(ctx, verifyEmail)
 }

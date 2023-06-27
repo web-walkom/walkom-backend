@@ -23,7 +23,7 @@ func (s *UsersService) CreateUserIfNotExist(ctx context.Context, email string) e
 	if err != nil {
 		if errors.Is(err, domain.ErrUserNotFound) {
 			return s.repo.CreateUser(ctx, domain.NewUser{
-				Email: email,
+				Email:     email,
 				CreatedAt: time.Now().Unix(),
 			})
 		}
@@ -39,4 +39,8 @@ func (s *UsersService) GetUserByEmail(ctx context.Context, email string) (domain
 
 func (s *UsersService) GetUserById(ctx context.Context, id primitive.ObjectID) (domain.User, error) {
 	return s.repo.GetUserById(ctx, id)
+}
+
+func (s *UsersService) UpdateUser(ctx context.Context, user domain.UpdateUser) error {
+	return s.repo.UpdateUser(ctx, user)
 }

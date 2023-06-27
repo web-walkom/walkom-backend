@@ -29,7 +29,7 @@ func (h *Handler) GetExcursionsById(c *gin.Context) {
 
 	excursion, err := h.services.Excursions.GetExcursionById(c, excursionId)
 	if err != nil {
-		h.newErrorResponse(c, http.StatusBadRequest, err, domain.ErrGetAllExcusions)
+		h.newErrorResponse(c, http.StatusBadRequest, err, domain.ErrGetExcusion)
 		return
 	}
 

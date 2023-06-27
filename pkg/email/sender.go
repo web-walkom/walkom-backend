@@ -2,13 +2,14 @@ package email
 
 import (
 	"fmt"
-	"github.com/b0shka/walkom-backend/internal/domain"
 	"net/smtp"
+
+	"github.com/b0shka/walkom-backend/internal/domain"
 
 	"github.com/jordan-wright/email"
 )
 
-func (s *EmailService) SendEmail(config domain.EmailVerify, toEmail string) error {
+func (s *EmailService) SendEmail(config domain.VerifyEmailConfig, toEmail string) error {
 	e := email.NewEmail()
 
 	e.From = fmt.Sprintf("%s <%s>", s.Name, s.FromEmail)
