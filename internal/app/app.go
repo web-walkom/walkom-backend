@@ -2,70 +2,69 @@ package app
 
 import (
 	"net/http"
-	"os"
-	"walkom/internal/handler"
-	"walkom/internal/repository"
-	"walkom/internal/service"
-	"walkom/pkg/logging"
 
-	"github.com/joho/godotenv"
-	"github.com/spf13/viper"
+	"github.com/b0shka/walkom-backend/internal/config"
+	"github.com/b0shka/walkom-backend/internal/handler"
+	"github.com/b0shka/walkom-backend/internal/repository"
+	"github.com/b0shka/walkom-backend/internal/service"
+	"github.com/b0shka/walkom-backend/pkg/email"
+	"github.com/b0shka/walkom-backend/pkg/logger"
 )
+
+const configPath = "configs"
 
 type Server struct {
 	httpServer *http.Server
 }
 
-func initConfig() error {
-	viper.AddConfigPath("configs")
-	viper.SetConfigName("config")
-	return viper.ReadInConfig()
-}
+func (s *Server) Run() {
+	log := logger.GetLogger()
 
-func (s *Server) Run() error {
-	logger := logging.GetLogger()
-
-	if err := initConfig(); err != nil {
-		logger.Fatalf("Error initializing configs: %s", err.Error())
-	} else {
-		logger.Info("Success initializing configs")
-	}
-
-	if err := godotenv.Load(); err != nil {
-		logger.Fatalf("Error loading env variables: %s", err.Error())
-	} else {
-		logger.Info("Success loading env variables")
-	}
-
-	mongoClient, err := repository.NewMongoDB(os.Getenv("MONGO_URI"))
+	cfg, err := config.InitConfig(configPath)
 	if err != nil {
-		logger.Fatalf("Error connect mongodb: %s", err.Error())
-	} else {
-		logger.Info("Success connect mongodb")
+		log.Error(err)
+		return
 	}
+	log.Info("Success init config")
 
-	db := mongoClient.Database(viper.GetString("mongo.databaseName"))
+	mongoClient, err := repository.NewMongoDB(cfg.Mongo.URI)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	log.Info("Success connect mongodb")
+
+	db := mongoClient.Database(cfg.Mongo.DBName)
+
+	emailService := email.NewEmailService(
+		cfg.Email.ServiceName,
+		cfg.Email.ServiceAddress,
+		cfg.Email.ServicePassword,
+		cfg.SMTP.Host,
+		cfg.SMTP.Port,
+	)
 
 	repos := repository.NewRepositories(db)
-	services := service.NewServices(repos)
+	services := service.NewServices(service.Deps{
+		Repos: repos,
+		EmailService: *emailService,
+		EmailConfig: cfg.Email,
+		AuthConfig: cfg.Auth,
+	})
 
-	handlers := handler.NewHandler(
-		services,
-	)
+	handlers := handler.NewHandler(services, log)
 	routes := handlers.InitRoutes()
 
 	s.httpServer = &http.Server{
-		Addr:           ":" + viper.GetString("http.port"),
+		Addr:           ":" + cfg.HTTP.Port,
 		Handler:        routes,
-		MaxHeaderBytes: viper.GetInt("http.maxHeaderBytes"),
-		ReadTimeout:    viper.GetDuration("http.readTimeout"),
-		WriteTimeout:   viper.GetDuration("http.writeTimeout"),
+		MaxHeaderBytes: cfg.HTTP.MaxHeaderMegabytes,
+		ReadTimeout:    cfg.HTTP.ReadTimeout,
+		WriteTimeout:   cfg.HTTP.WriteTimeout,
 	}
 
-	logger.Info("Listen server...")
-	return s.httpServer.ListenAndServe()
-	// return s.httpServer.ListenAndServeTLS(
-	// 	os.Getenv("PATH_TLS_CERT"),
-	// 	os.Getenv("PATH_TLS_KEY"),
-	// )
+	log.Info("Listen server...")
+	if err := s.httpServer.ListenAndServe(); err != nil {
+		log.Errorf("Error run server %s", err)
+	}
 }

@@ -2,11 +2,10 @@ package service
 
 import (
 	"context"
-	"walkom/internal/domain"
-	"walkom/internal/repository"
 
-	"github.com/joho/godotenv"
-	"github.com/sirupsen/logrus"
+	"github.com/b0shka/walkom-backend/internal/domain"
+	"github.com/b0shka/walkom-backend/internal/repository"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type ExcursionsService struct {
@@ -14,13 +13,13 @@ type ExcursionsService struct {
 }
 
 func NewExcursionsService(repo repository.Excursions) *ExcursionsService {
-	if err := godotenv.Load(); err != nil {
-		logrus.Fatalf("error loading env variables: %s", err.Error())
-	}
-
 	return &ExcursionsService{repo: repo}
 }
 
 func (s *ExcursionsService) GetAllExcursions(ctx context.Context) ([]domain.Excursion, error) {
 	return s.repo.GetAllExcursions(ctx)
+}
+
+func (s *ExcursionsService) GetExcursionById(ctx context.Context, id primitive.ObjectID) (domain.ExcursionOpen, error) {
+	return s.repo.GetExcursionById(ctx, id)
 }

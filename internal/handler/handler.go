@@ -1,37 +1,29 @@
 package handler
 
 import (
-	"walkom/internal/service"
-	"walkom/pkg/logging"
+	"github.com/b0shka/walkom-backend/internal/service"
+	"github.com/b0shka/walkom-backend/pkg/logger"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 type Handler struct {
 	services *service.Services
-	logger   logging.Logger
+	log      logger.Logger
 }
 
 func NewHandler(
 	services *service.Services,
+	log logger.Logger,
 ) *Handler {
-	logger := logging.GetLogger()
-	if err := godotenv.Load(); err != nil {
-		logger.Fatalf("Error loading env variables: %s", err.Error())
-	}
-
 	return &Handler{
 		services: services,
-		logger:   logger,
+		log:      log,
 	}
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {
-	//gin.SetMode(gin.ReleaseMode)
-	//gin.SetMode(gin.DebugMode)
-
 	router := gin.Default()
 
 	router.Use(
@@ -41,7 +33,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
+		AllowMethods:     []string{"GET", "POST"},
 		AllowHeaders:     []string{"Content-Type,access-control-allow-origin, access-control-allow-headers,authorization,my-custom-header"},
 		AllowCredentials: true,
 		ExposeHeaders:    []string{"Content-Length"},
@@ -49,6 +41,18 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	api := router.Group("/api")
 	{
+		auth := api.Group("/auth")
+		{
+			auth.POST("/send-code", h.SendCodeEmail)
+			auth.POST("/check-code", h.CheckCodeEmail)
+		}
+
+		user := api.Group("/user", h.userIdentity)
+		{
+			user.GET("/:id", h.GetUserById)
+			user.POST("/:id/update", h.UpdateUser)
+		}
+
 		excursions := api.Group("/excursions")
 		{
 			excursions.GET("", h.GetAllExcursions)
